@@ -1,0 +1,101 @@
+<header class="topbar">
+  <a class="brand" href="#top"><span class="brand-mark">EM</span>{{ storeName }}</a>
+  <label class="search" aria-label="Search products">
+    <span aria-hidden="true">⌕</span>
+    <input
+      #searchInput
+      type="search"
+      placeholder="Search products..."
+      [value]="searchTerm()"
+      (input)="updateSearch(searchInput.value)"
+    />
+  </label>
+  <button class="cart-button" type="button" aria-label="Shopping cart">
+    <span aria-hidden="true">🛍</span> Cart <span class="cart-count">{{ cartCount() }}</span>
+  </button>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <p class="eyebrow">MEGA SHOPPING SALE</p>
+    <h1>Save up to <em>60% off</em><br />your everyday picks.</h1>
+    <p>Shop the sale and get free shipping when your order is over $50.</p>
+  </section>
+
+  <section class="store-layout" aria-label="Product catalogue">
+    <aside class="sidebar">
+      <p class="sidebar-label">BROWSE BY</p>
+      <h2>Categories</h2>
+      <nav aria-label="Product categories">
+        @for (category of categories(); track category) {
+          <button
+            type="button"
+            (click)="selectCategory(category)"
+            [class.active]="selectedCategory() === category"
+          >
+            {{ category }}
+            @if (category !== 'All Products') {
+              <span>{{ categoryCount(category) }}</span>
+            }
+          </button>
+        }
+      </nav>
+    </aside>
+
+    <div class="catalogue">
+      <div class="catalogue-heading">
+        <div>
+          <p class="eyebrow">SHOP</p>
+          <h2>{{ selectedCategory() }}</h2>
+        </div>
+        <p>{{ filteredProducts().length }} products found</p>
+      </div>
+
+      @if (isLoading()) {
+        <div class="empty-state">
+          <span>◌</span>
+          <h3>Loading products</h3>
+          <p>Fetching the latest catalogue from the Fake Store API.</p>
+        </div>
+      } @else if (loadError()) {
+        <div class="empty-state">
+          <span>!</span>
+          <h3>Catalogue unavailable</h3>
+          <p>{{ loadError() }}</p>
+        </div>
+      } @else if (filteredProducts().length > 0) {
+        <div class="product-grid">
+          @for (product of filteredProducts(); track product.id) {
+            <article class="product-card">
+              <div class="product-image"><img [src]="product.imageUrl" [alt]="product.name" /></div>
+              <div class="product-info">
+                <p class="category-tag">{{ product.category }}</p>
+                <h3>{{ product.name }}</h3>
+                <p class="description">{{ product.description }}</p>
+                <div class="product-footer">
+                  <div>
+                    <strong>{{ product.price | currency }}</strong
+                    ><span [class.out-of-stock]="!product.inStock">{{
+                      product.inStock ? 'In stock' : 'Out of stock'
+                    }}</span>
+                  </div>
+                  <button type="button" [disabled]="!product.inStock" (click)="addToCart()">
+                    Add
+                  </button>
+                </div>
+              </div>
+            </article>
+          }
+        </div>
+      } @else {
+        <div class="empty-state">
+          <span>⌕</span>
+          <h3>No products found</h3>
+          <p>Try a different search term or category.</p>
+        </div>
+      }
+    </div>
+  </section>
+</main>
+
+<footer>© 2026 {{ storeName }} · A simple Angular e-commerce project</footer>
